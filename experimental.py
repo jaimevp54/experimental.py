@@ -1,4 +1,5 @@
 import functools
+import inspect
 from experimental_config import ENABLED_EXPERIMENTS
 
 class DisabledExperiment(Exception):
@@ -13,6 +14,10 @@ def volatile(experiment, safe=False):
 
 	def decorated(func, *args, **kwargs):
 		def wrapper(*args, **kwargs):	
+			same_number_of_arguments = bool( len(inspect.getargspec(func).args) == len(inspect.getargspec(experiment).args) ) # TODO(jaimevp54): Refactor this into a function. validate_number_of_arguments()?
+			if not same_number_of_arguments:
+				raise MismatchingArguments("Experimental and volatile functions must have the same number of arguments") # TODO(jaimevp54): Add number of arguments to error message
+				
 			if "*" not in ENABLED_EXPERIMENTS and experiment.__name__ not in ENABLED_EXPERIMENTS:
 				return func(*args, **kwargs)
 			else:

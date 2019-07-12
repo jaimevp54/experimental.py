@@ -1,5 +1,5 @@
 import unittest
-from experimental import volatile, experimental, DisabledExperiment
+from experimental import volatile, experimental, DisabledExperiment, MismatchingArguments
 from mock import patch
 class TestVolatileDecorator(unittest.TestCase):
 	def test_calls_enabled_experiment(self):
