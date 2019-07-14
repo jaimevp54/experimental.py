@@ -34,7 +34,7 @@ class TestVolatileDecorator(unittest.TestCase):
 		
 		with patch('experimental.ENABLED_EXPERIMENTS', ['*']):
 			with self.assertRaises(MismatchingArguments):
-				v_func()
+				v_func("FAIL")
 
 	def test_safe_flag(self):
 		@experimental()
@@ -43,7 +43,7 @@ class TestVolatileDecorator(unittest.TestCase):
 			return id(e_func)
 			
 		@volatile(experiment=e_func, safe=True)
-		def v_func(a):
+		def v_func():
 			return id(v_func)
 		
 		with patch('experimental.ENABLED_EXPERIMENTS', ['*']):
@@ -52,40 +52,33 @@ class TestVolatileDecorator(unittest.TestCase):
 	def test_refactor_flag(self):
 		
 		ran_functions = []
+		
 		@experimental()
-		def bad_refactor(a,b):
-			ran_functions.append("B")
-			if a==-1 and b==-1:
-				raise Exception
-			return a+b
+		def bad_refactor(original_list):
+                    if original_list == [42] or original_list == None:
+                        return list(original_list)
+                    return original_list
 			
 		@volatile(experiment=bad_refactor, refactor=True)
-		def multiplyp(a,b):
-			ran_functions.append("A")
-			return a*b
+                def get_same_list(original_list):
+			return original_list
 		
 		with patch('experimental.ENABLED_EXPERIMENTS', ['*']):
-			ran_functions = []
-			self.assertEqual(multiply(2,2), 4)
-			self.assertListEqual(ran_functions, ["B"])
+                        a_list = []
+			self.assertEqual(id(get_same_list(a_list)), id(a_list))
 			
-			ran_functions = []
-			self.assertEqual(multiply(2,4), 8)
-			self.assertListEqual(ran_functions, ["B","A"])
+                        a_list = [42]
+			self.assertNotEqual(id(get_same_list(a_list)), id(a_list))
 			
-			ran_functions = []
 			with self.assertRaises(Exception):
-				multiply(-1,-1)
-			self.assertListEqual(ran_functions, ["B"])
+				get_same_list(None)
 			
 		with patch('experimental.ENABLED_EXPERIMENTS', []):
-			ran_functions = []
-			self.assertEqual(multiply(2,2), 4)
-			self.assertListEqual(ran_functions, ["B"])
+                        a_list = []
+			self.assertEqual(id(get_same_list(a_list)), id(a_list))
 			
-			ran_functions = []
-			self.assertEqual(multiply(2,4), 8)
-			self.assertListEqual(ran_functions, ["B","A"])
+                        a_list = [42]
+			self.assertEqual(id(get_same_list(a_list)), id(a_list))
 
 			
 
