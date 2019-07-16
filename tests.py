@@ -1,5 +1,6 @@
 import unittest
-from experimental import volatile, experimental, DisabledExperiment, MismatchingArguments
+import experimental
+from experimental import volatile, experimental, DisabledExperiment, MismatchingArguments, experimental_block
 from mock import patch
 class TestVolatileDecorator(unittest.TestCase):
 	def test_calls_enabled_experiment(self):
@@ -121,6 +122,18 @@ class TestExperimentalDecorator(unittest.TestCase):
 				func()
 			except DisabledExperiment:
 				self.fail("func() raised DisabledExperiment unexpectedly!")
+
+
+class TestExperimentalBlock(unittest.TestCase):
+	def test_disabled_block_raises_exception(self):
+            with patch('experimental.ENABLED_EXPERIMENTS', []):
+                with self.assertRaises(DisabledExperiment):
+                    with experimental_block('test'):
+                        pass 
+
+            with patch('experimental.ENABLED_EXPERIMENTS', ['*']):
+                with experimental_block('test'):
+                    pass 
 
 unittest.main()
 

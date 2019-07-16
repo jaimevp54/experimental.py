@@ -54,3 +54,14 @@ def experimental(identifier=None):
                         raise DisabledExperiment("'"+experiment.__name__ + "' is  a experimental feature and it has not been enabled")
                 return experiment(*args, **kwargs)
 	return wrapper
+
+
+class experimental_block():
+    def __init__(self, identifier):
+        self.identifier = identifier
+    def __enter__(self):
+        if '*' not in ENABLED_EXPERIMENTS and self.identifier not in ENABLED_EXPERIMENTS:
+            raise DisabledExperiment
+
+    def __exit__(self, type, value, traceback):
+        pass
