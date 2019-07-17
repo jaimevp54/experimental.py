@@ -1,6 +1,6 @@
 import unittest
 import experimental
-from experimental import volatile, experiment, DisabledExperiment, MismatchingArguments, experimental_block
+from experimental import volatile, experiment, DisabledExperiment, MismatchingArguments, experimental_block, experiments_ignored
 from mock import patch
 class TestVolatileDecorator(unittest.TestCase):
 	def test_calls_enabled_experiment(self):
@@ -51,8 +51,6 @@ class TestVolatileDecorator(unittest.TestCase):
 			self.assertEqual(id(v_func), v_func())
 
 	def test_refactor_flag(self):
-		
-		ran_functions = []
 		
 		@experiment()
 		def bad_refactor(original_list):
@@ -123,6 +121,21 @@ class TestExperimentDecorator(unittest.TestCase):
 			except DisabledExperiment:
 				self.fail("func() raised DisabledExperiment unexpectedly!")
 
+	def test_experiments_ignored_blocks(self):
+		@experiment()
+		def e_func():
+			return id(e_func)
+			
+		@volatile(experiment=e_func, safe=True)
+		def v_func():
+			return id(v_func)
+		
+		with patch('experimental.ENABLED_EXPERIMENTS', ['*']):
+                    self.assertEqual(id(e_func), v_func())
+
+                    with experiments_ignored():
+			self.assertEqual(id(v_func), v_func())
+
 
 class TestExperimentalBlock(unittest.TestCase):
 	def test_disabled_block_raises_exception(self):
@@ -136,26 +149,3 @@ class TestExperimentalBlock(unittest.TestCase):
                     pass 
 
 unittest.main()
-
-# from experimental import experimental, volatile
-# 
-# 
-# fruits = ["Banana", "Apple", "Strawberry"]
-# 
-# @experimental
-# def print_fruits_twice(fruits):
-# 	0/0
-# 	print "This are my new fruits (printed twice ;D ) :"
-# 	for fruit in fruits:
-# 		print " - ", fruit, fruit
-# 
-# 
-# @volatile(experiment=print_fruits_twice)
-# def print_fruits(fruits):
-# 	print "This are my new fruits:"
-# 	for fruit in fruits:
-# 		print " - ", fruit
-# 
-# 
-# print_fruits(fruits)
-# 
