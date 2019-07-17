@@ -46,13 +46,13 @@ def volatile(experiment, safe=False, refactor=False):
 						raise
 	return wrapper
 
-def experimental(identifier=None):
+def experiment(identifier=None):
         @wrapt.decorator
-	def wrapper(experiment, instance, args, kwargs):
-		_identifier = identifier or experiment.__name__
+	def wrapper(wrapped, instance, args, kwargs):
+		_identifier = identifier or wrapped.__name__
                 if '*' not in ENABLED_EXPERIMENTS and _identifier not in ENABLED_EXPERIMENTS:
-                        raise DisabledExperiment("'"+experiment.__name__ + "' is  a experimental feature and it has not been enabled")
-                return experiment(*args, **kwargs)
+                        raise DisabledExperiment("'"+wrapped.__name__ + "' is  a experimental feature and it has not been enabled")
+                return wrapped(*args, **kwargs)
 	return wrapper
 
 

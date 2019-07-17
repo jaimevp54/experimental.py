@@ -1,10 +1,10 @@
 import unittest
 import experimental
-from experimental import volatile, experimental, DisabledExperiment, MismatchingArguments, experimental_block
+from experimental import volatile, experiment, DisabledExperiment, MismatchingArguments, experimental_block
 from mock import patch
 class TestVolatileDecorator(unittest.TestCase):
 	def test_calls_enabled_experiment(self):
-		@experimental()
+		@experiment()
 		def e_func():
 			return id(e_func)
 			
@@ -25,7 +25,7 @@ class TestVolatileDecorator(unittest.TestCase):
 			self.assertEqual(id(e_func), v_func())
 
 	def test_different_number_of_arguments_raises_exception(self):
-		@experimental()
+		@experiment()
 		def e_func():
 			return id(e_func)
 			
@@ -38,7 +38,7 @@ class TestVolatileDecorator(unittest.TestCase):
 				v_func("FAIL")
 
 	def test_safe_flag(self):
-		@experimental()
+		@experiment()
 		def e_func():
 			raise Exception
 			return id(e_func)
@@ -54,7 +54,7 @@ class TestVolatileDecorator(unittest.TestCase):
 		
 		ran_functions = []
 		
-		@experimental()
+		@experiment()
 		def bad_refactor(original_list):
                     if original_list == [42] or original_list == None:
                         return list(original_list)
@@ -86,9 +86,9 @@ class TestVolatileDecorator(unittest.TestCase):
 		
 
 	
-class TestExperimentalDecorator(unittest.TestCase):
+class TestExperimentDecorator(unittest.TestCase):
 	def test_experimental_function_raises_exception(self):
-		@experimental()
+		@experiment()
 		def func():
 			pass
 
@@ -113,7 +113,7 @@ class TestExperimentalDecorator(unittest.TestCase):
 				self.fail("func() raised DisabledExperiment unexpectedly!")
 
 	def test_identifier(self):
-		@experimental('feature_A')
+		@experiment('feature_A')
 		def func():
 			pass
 
